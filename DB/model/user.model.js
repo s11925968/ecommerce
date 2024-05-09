@@ -1,55 +1,52 @@
-import { status } from "express/lib/response";
-import mongoose, { model } from "mongoose";
+import mongoose from 'mongoose';
+const { Schema, model } = mongoose;
 
-const userSchema=new Schema({
-
-    userName:{
-        type:String,
-        required:true,
-        min:4,
-        max:20
+const userSchema = new Schema({
+    userName: {
+        type: String,
+        required: true,
+        minlength: 4,
+        maxlength: 20
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true,
+    email: {
+        type: String,
+        required: true,
+        unique: true
     },
-    password:{
-        type:String,
-        required:true,
-        min:6,
-        max:20
+    password: {
+        type: String,
+        required: true,
     },
-    image:{
-        type:Object
+    image: {
+        type: Object
     },
-    phone:{
-        type:String,
+    phone: {
+        type: String,
     },
-    address:{
-        type:String,
+    address: {
+        type: String,
     },
-    confirmEmail:{
-        type:Boolean,
-        default:false,
+    confirmEmail: {
+        type: Boolean,
+        default: false,
     },
-    gender:{
-        type:String,
-        enum:['male','female']
+    gender: {
+        type: String,
+        enum: ['male', 'female']
     },
-    status:{
-        type:String,
-        default:'active',
-        enum:['Active','inActive'],
+    status: {
+        type: String,
+        default: 'Active', // Match the case used in the enum
+        enum: ['Active', 'Inactive'] // Corrected case sensitivity
     },
-    role:{
-        type:String,
-        default:'user',
-        enum:['user','admin']
+    role: {
+        type: String,
+        default: 'user', // Match the case used in the enum
+        enum: ['user', 'admin']
     }
-},{
-    timestamps:true,
+}, {
+    timestamps: true
 });
 
-const UserModel=model('User',userSchema);
+const UserModel = model('User', userSchema);
 export default UserModel;

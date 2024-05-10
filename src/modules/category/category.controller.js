@@ -32,30 +32,34 @@ export const getDetails=async(req,res)=>{
   return res.status(200).json({message:"success",categories});
 }
 export const update = async(req, res) => {
-  try {
-      // Find the category by ID
-      const category = await categoryModel.findById(req.params.id);
-      
-      // If no category is found, return a 404 error
-      if (!category) {
-          return res.status(404).json({ message: "Category not found" });
-      }
+    try {
+        // Find the category by ID
+        const category = await categoryModel.findById(req.params.id);
+        
+        // If no category is found, return a 404 error
+        if (!category) {
+            return res.status(404).json({ message: "Category not found" });
+        }
 
-      // Update category with request body data
-      // Assuming you might be updating the name or other fields passed in the body
-      const updatedFields = req.body;
-      await categoryModel.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
-
-      // Fetch the updated category
-      const updatedCategory = await categoryModel.findById(req.params.id);
-
-      // Return the updated category
-      return res.json({ message: "Category updated successfully", category: updatedCategory });
-  } catch (error) {
-      // Error handling
-      console.error("Failed to update category:", error);
-      return res.status(500).json({ message: "Failed to update category", error: error.message });
-  }
+        category.name=req.body.name.toLowerCase();
+        if(await categoryModel.findOne({name:req.body.name,_id:{$ne:req.params.id}})){
+            return res.status(404).json({ message: "Category error" });
+        }
+        category.slug=slugify(req.body.name);
+        if(req.file){
+            const {secure_url,public_id}=await cloudinary.uploader.upload(req.file.path,{
+                folder:"category"
+            })
+            category.image={secure_url,public_id};
+        }
+        category.status=req.body.status;
+        await category.save();
+        return res.json({message:"success",category:category});
+    } catch (error) {
+        // Error handling
+        console.error("Failed to update category:", error);
+        return res.status(500).json({ message: "Failed to update category", error: error.message });
+    }
 }
 export const deleteCategory = async (req, res) => {
   try {

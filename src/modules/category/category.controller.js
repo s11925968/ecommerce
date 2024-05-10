@@ -17,3 +17,61 @@ export const create=async(req,res)=>{
   const category=await categoryModel.create({name,slug:slugify(name),image:{secure_url,public_id}})
   return res.json({message:category});
 }
+export const getAll=async (req, res) => {
+
+  const categories = await categoryModel.find({});
+  return res.status(200).json({ message: "success", categories });
+}
+export const getActive=async (req, res) => {
+
+  const categories = await categoryModel.find({status: 'active'}).select("name ");
+  return res.status(200).json({ message: "success", categories });
+}
+export const getDetails=async(req,res)=>{
+  const categories=await categoryModel.find(req.params._id);
+  return res.status(200).json({message:"success",categories});
+}
+export const update = async(req, res) => {
+  try {
+      // Find the category by ID
+      const category = await categoryModel.findById(req.params.id);
+      
+      // If no category is found, return a 404 error
+      if (!category) {
+          return res.status(404).json({ message: "Category not found" });
+      }
+
+      // Update category with request body data
+      // Assuming you might be updating the name or other fields passed in the body
+      const updatedFields = req.body;
+      await categoryModel.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
+
+      // Fetch the updated category
+      const updatedCategory = await categoryModel.findById(req.params.id);
+
+      // Return the updated category
+      return res.json({ message: "Category updated successfully", category: updatedCategory });
+  } catch (error) {
+      // Error handling
+      console.error("Failed to update category:", error);
+      return res.status(500).json({ message: "Failed to update category", error: error.message });
+  }
+}
+export const deleteCategory = async (req, res) => {
+  try {
+      // Attempt to find and delete the category by ID
+      const deletedCategory = await categoryModel.findByIdAndDelete(req.params.id);
+
+      // If no category was found and deleted, return a 404 error
+      if (!deletedCategory) {
+          return res.status(404).json({ message: "Category not found" });
+      }
+
+      // If the category was deleted successfully, return success message
+      return res.json({ message: "success" });
+  } catch (error) {
+      // If an error occurs, log it and return a 500 internal server error
+      console.error("Error deleting category:", error);
+      return res.status(500).json({ message: "Failed to delete category", error: error.message });
+  }
+}
